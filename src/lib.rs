@@ -10,12 +10,36 @@ mod windows;
 // #[cfg(feature = "utils")]
 pub mod utils;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum ProxyType {
+    HTTP,
+    HTTPS,
+    SOCKS,
+}
+
+impl ProxyType {
+    fn to_target(&self) -> &'static str {
+        match self {
+            ProxyType::HTTP => "webproxy",
+            ProxyType::HTTPS => "securewebproxy",
+            ProxyType::SOCKS => "socksfirewallproxy",
+        }
+    }
+}
+
+impl Default for ProxyType {
+    fn default() -> Self {
+        ProxyType::HTTP
+    }
+}
+
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Sysproxy {
     pub enable: bool,
     pub host: String,
     pub port: u16,
     pub bypass: String,
+    pub proxy_type: ProxyType,
 }
 
 #[derive(thiserror::Error, Debug)]

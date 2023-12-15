@@ -1,4 +1,4 @@
-use crate::{Error, Result, Sysproxy};
+use crate::{Error, Result, Sysproxy, ProxyType};
 use std::net::{SocketAddr, UdpSocket};
 use std::{process::Command, str::from_utf8};
 
@@ -7,7 +7,7 @@ impl Sysproxy {
         let service = default_network_service().or_else(|_| default_network_service_by_ns())?;
         let service = service.as_str();
 
-        let mut socks = Sysproxy::get_socks(service)?;
+        let mut socks: Sysproxy = Sysproxy::get_socks(service)?;
         let http = Sysproxy::get_http(service)?;
         let https = Sysproxy::get_https(service)?;
         let bypass = Sysproxy::get_bypass(service)?;
@@ -89,22 +89,6 @@ impl Sysproxy {
     }
 }
 
-#[derive(Debug)]
-enum ProxyType {
-    HTTP,
-    HTTPS,
-    SOCKS,
-}
-
-impl ProxyType {
-    fn to_target(&self) -> &'static str {
-        match self {
-            ProxyType::HTTP => "webproxy",
-            ProxyType::HTTPS => "securewebproxy",
-            ProxyType::SOCKS => "socksfirewallproxy",
-        }
-    }
-}
 
 fn networksetup() -> Command {
     Command::new("networksetup")
@@ -153,6 +137,7 @@ fn get_proxy(proxy_type: ProxyType, service: &str) -> Result<Sysproxy> {
         host,
         port,
         bypass: "".into(),
+        
     })
 }
 
